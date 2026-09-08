@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コラッツ計算機（奇数4進数変換）</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>コラッツ計算機</h1>
+    <p>初期値（1以上の整数）を入力すると、過程で現れる奇数を4進数に変換して列挙します。</p>
+
+    <!-- ① 数値の入力箇所 -->
+    <div class="input-container">
+        <input type="number" id="inputX" min="1" placeholder="例: 27">
+        <button id="calcBtn">計算実行</button>
+    </div>
+
+    <!-- ② 出力箇所 -->
+    <h3>計算結果:</h3>
+    <div id="result">ここに結果が表示されます</div>
+
+    <!-- ③ JavaScriptの読み込み (type="module" が必須) -->
+    <script type="module">
+        import { collatz } from "./calculate04.js";
+
+        const inputX = document.getElementById("inputX");
+        const calcBtn = document.getElementById("calcBtn");
+        const resultDiv = document.getElementById("result");
+
+        calcBtn.addEventListener("click", () => {
+            const x = Number(inputX.value);
+
+            // 入力チェック（1未満や空文字のガード）
+            if (!x || x < 1 || !Number.isInteger(x)) {
+                resultDiv.innerHTML = "<span style='color:red;'>1以上の正の整数を入力してください。</span>";
+                return;
+            }
+
+            // コラッツ計算を実行
+            const suretu = collatz(x);
+
+            // 結果を番号付きリストで画面に表示
+            let html = `<p><strong>要素数:</strong> ${suretu.suretu4.length} 個</p>`;
+            html += `
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+            <tr style="border-bottom: 2px solid #ccc; text-align: left;">
+                <th style="padding: 6px;">No.</th>
+                <th style="padding: 6px;">4進数</th>
+                <th style="padding: 6px;">10進数</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+            suretu.suretu4.forEach((val4, index) => {
+                const val10 = suretu.suretu10[index]; 
+                 html += `
+                     <tr style="border-bottom: 1px solid #e0e0e0; font-family: monospace;">
+                        <td style="padding: 6px; color: #888;">${index + 1}</td>
+                        <td style="padding: 6px;">${val4}</td>
+                        <td style="padding: 6px; color: #555;">${val10}</td>
+                     </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            resultDiv.innerHTML = html;
+        });
+    </script>
+</body>
+</html>
