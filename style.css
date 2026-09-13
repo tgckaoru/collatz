@@ -19,6 +19,66 @@ body {
   line-height: 1.5;
 }
 
+/* --- 過去の計算ゾーン --- */
+.history-card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.history-card h2 {
+  font-size: 1.1rem;
+  margin: 0 0 12px 0;
+  color: var(--text-main);
+}
+
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-item {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.history-num {
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.history-num:hover {
+  background-color: #e2e8f0;
+}
+
+.delete-btn {
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border-color);
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.delete-btn:hover {
+  background-color: #fee2e2;
+}
+
 /* --- メインカード容器 --- */
 .container {
   background: var(--card-bg);
@@ -84,9 +144,32 @@ button:active {
   transform: scale(0.98);
 }
 
+/* --- 計算結果ヘッダー領域 --- */
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.result-header h3 {
+  margin: 0;
+}
+
+/* 保存ボタン用サブスタイル */
+.save-btn {
+  background-color: #10b981;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+.save-btn:hover {
+  background-color: #059669;
+}
+
 /* --- 結果出力領域 --- */
 #result {
-  margin-top: 20px;
+  margin-top: 12px;
   padding: 16px;
   background-color: #f1f5f9;
   border-radius: 8px;

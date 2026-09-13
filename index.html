@@ -7,66 +7,154 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 過去の計算ゾーン -->
+    <nav class="history-card">
+        <h2>過去の計算</h2>
+        <div id="historyList"></div>
+    </nav>
 
-    <h1>コラッツ計算機</h1>
-    <p>初期値（1以上の整数）を入力すると、過程で現れる奇数を4進数に変換して列挙します。</p>
+    <div class="container">
+        <h1>コラッツ計算機</h1>
+        <p class="description">初期値（1以上の整数）を入力すると、過程で現れる奇数を4進数に変換して列挙します。</p>
 
-    <!-- ① 数値の入力箇所 -->
-    <div class="input-container">
-        <input type="number" id="inputX" min="1" placeholder="例: 27">
-        <button id="calcBtn">計算実行</button>
-    </div>
+        <!-- ① 数値の入力箇所 -->
+        <div class="input-container">
+            <input type="number" id="inputX" min="1" placeholder="例: 27">
+            <button id="calcBtn">計算実行</button>
+        </div>
 
-    <!-- ② 出力箇所 -->
-    <h3>計算結果:</h3>
-    <div id="result">ここに結果が表示されます</div>
+        <!-- ② 出力箇所ヘッダー（結果タイトル ＋ 保存ボタン） -->
+        <div class="result-header">
+            <h3>計算結果:</h3>
+            <button id="saveBtn" class="save-btn" style="display: none;">この結果を保存</button>
+        </div>
+        <div id="result">ここに結果が表示されます</div>
 
-    <!-- ③ JavaScriptの読み込み (type="module" が必須) -->
-    <script type="module">
-        import { collatz } from "./calculate04.js";
+        <!-- ③ JavaScriptの読み込み -->
+        <script type="module">
+            import { collatz } from "./calculate04.js";
 
-        const inputX = document.getElementById("inputX");
-        const calcBtn = document.getElementById("calcBtn");
-        const resultDiv = document.getElementById("result");
+            const inputX = document.getElementById("inputX");
+            const calcBtn = document.getElementById("calcBtn");
+            const resultDiv = document.getElementById("result");
+            const saveBtn = document.getElementById("saveBtn");
+            const historyList = document.getElementById("historyList");
 
-        calcBtn.addEventListener("click", () => {
-            const x = Number(inputX.value);
+            const STORAGE_KEY = "collatz_history";
+            let currentCalculatedValue = null;
 
-            // 入力チェック（1未満や空文字のガード）
-            if (!x || x < 1 || !Number.isInteger(x)) {
-                resultDiv.innerHTML = "<span style='color:red;'>1以上の正の整数を入力してください。</span>";
-                return;
+            function getHistory() {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
             }
 
-            // コラッツ計算を実行
-            const suretu = collatz(x);
+            function setHistory(history) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            }
 
-            // 結果を番号付きリストで画面に表示
-            let html = `<p><strong>要素数:</strong> ${suretu.suretu4.length} 個</p>`;
-            html += `
-    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-        <thead>
-            <tr style="border-bottom: 2px solid #ccc; text-align: left;">
-                <th style="padding: 6px;">No.</th>
-                <th style="padding: 6px;">4進数</th>
-                <th style="padding: 6px;">10進数</th>
-            </tr>
-        </thead>
-        <tbody>`;
+            function runCalculation(x) {
+                const suretu = collatz(x);
+                currentCalculatedValue = x;
 
-            suretu.suretu4.forEach((val4, index) => {
-                const val10 = suretu.suretu10[index]; 
-                 html += `
-                     <tr style="border-bottom: 1px solid #e0e0e0; font-family: monospace;">
-                        <td style="padding: 6px; color: #888;">${index + 1}</td>
-                        <td style="padding: 6px;">${val4}</td>
-                        <td style="padding: 6px; color: #555;">${val10}</td>
-                     </tr>`;
+                let html = `<p><strong>要素数:</strong> ${suretu.suretu4.length} 個</p>`;
+                html += `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>4進数</th>
+                            <th>10進数</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                suretu.suretu4.forEach((val4, index) => {
+                    const val10 = suretu.suretu10[index]; 
+                    html += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${val4}</td>
+                            <td>${val10}</td>
+                        </tr>`;
+                });
+
+                html += `</tbody></table>`;
+                resultDiv.innerHTML = html;
+                saveBtn.style.display = "inline-block";
+            }
+
+            function renderHistory() {
+                const history = getHistory();
+                historyList.innerHTML = "";
+
+                if (history.length === 0) {
+                    historyList.innerHTML = "<span style='color: var(--text-muted); font-size: 0.85rem;'>保存された履歴はありません</span>";
+                    return;
+                }
+
+                const listContainer = document.createElement("div");
+                listContainer.className = "history-list";
+
+                history.forEach((num, index) => {
+                    const item = document.createElement("div");
+                    item.className = "history-item";
+
+                    const numBtn = document.createElement("button");
+                    numBtn.className = "history-num";
+                    numBtn.textContent = num;
+                    numBtn.addEventListener("click", () => {
+                        inputX.value = num;
+                        runCalculation(num);
+                    });
+
+                    const delBtn = document.createElement("button");
+                    delBtn.className = "delete-btn";
+                    delBtn.textContent = "×";
+                    delBtn.addEventListener("click", () => {
+                        deleteHistoryItem(index);
+                    });
+
+                    item.appendChild(numBtn);
+                    item.appendChild(delBtn);
+                    listContainer.appendChild(item);
+                });
+
+                historyList.appendChild(listContainer);
+            }
+
+            function deleteHistoryItem(index) {
+                const history = getHistory();
+                history.splice(index, 1);
+                setHistory(history);
+                renderHistory();
+            }
+
+            calcBtn.addEventListener("click", () => {
+                const x = Number(inputX.value);
+
+                if (!x || x < 1 || !Number.isInteger(x)) {
+                    resultDiv.innerHTML = "<span style='color:red;'>1以上の正の整数を入力してください。</span>";
+                    saveBtn.style.display = "none";
+                    currentCalculatedValue = null;
+                    return;
+                }
+
+                runCalculation(x);
             });
 
-            html += `</tbody></table>`;
-            resultDiv.innerHTML = html;
-        });
-    </script>
+            saveBtn.addEventListener("click", () => {
+                if (currentCalculatedValue === null) return;
+
+                const history = getHistory();
+                if (!history.includes(currentCalculatedValue)) {
+                    history.push(currentCalculatedValue);
+                    setHistory(history);
+                    renderHistory();
+                }
+            });
+
+            renderHistory();
+        </script>
+    </div>
 </body>
 </html>
