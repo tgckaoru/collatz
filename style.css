@@ -20,6 +20,9 @@ body {
 }
 
 /* --- 過去の計算ゾーン --- */
+nav {
+  margin-top: 20px;
+}
 .history-card {
   background: var(--card-bg);
   padding: 20px;
